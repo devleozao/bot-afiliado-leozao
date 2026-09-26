@@ -7,15 +7,16 @@ import time
 import hashlib
 import os
 
-# ================= CONFIGURAÇÕES =================
-TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM")
-SHOPEE_APP_ID = os.environ.get("SHOPEE_APP_ID")
-SHOPEE_APP_SECRET = os.environ.get("SHOPEE_APP_SECRET")
+# ================= CONFIGURAÇÕES À PROVA DE FALHAS =================
+# O código tenta ler do Render. Se falhar, usa a sua chave real diretamente.
+TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM", "8206852641:AAFVva1Eo3q16dL0kXuVoHNUR2SOFYD41_k")
+SHOPEE_APP_ID = os.environ.get("SHOPEE_APP_ID", "18383201070")
+SHOPEE_APP_SECRET = os.environ.get("SHOPEE_APP_SECRET", "HHEJTZ5QCXBMC6HTO34SXPQUYAZOZLGB")
 ML_CAMPANHA = os.environ.get("ML_CAMPANHA", "18054499")
 
 bot = telebot.TeleBot(TOKEN_TELEGRAM)
 app = Flask(__name__)
-# =================================================
+# ===================================================================
 
 def converter_shopee(url_original):
     api_url = "https://open-api.affiliate.shopee.com.br/graphql"
