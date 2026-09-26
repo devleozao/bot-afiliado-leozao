@@ -7,16 +7,16 @@ import time
 import hashlib
 import os
 
-# ================= CONFIGURAÇÕES À PROVA DE FALHAS =================
-# O código tenta ler do Render. Se falhar, usa a sua chave real diretamente.
+# ================= CONFIGURAÇÕES =================
 TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM", "8206852641:AAFVva1Eo3q16dL0kXuVoHNUR2SOFYD41_k")
 SHOPEE_APP_ID = os.environ.get("SHOPEE_APP_ID", "18383201070")
 SHOPEE_APP_SECRET = os.environ.get("SHOPEE_APP_SECRET", "HHEJTZ5QCXBMC6HTO34SXPQUYAZOZLGB")
 ML_CAMPANHA = os.environ.get("ML_CAMPANHA", "18054499")
 
-bot = telebot.TeleBot(TOKEN_TELEGRAM)
+# O segredo está aqui: threaded=False impede que o Render corte a resposta do bot
+bot = telebot.TeleBot(TOKEN_TELEGRAM, threaded=False)
 app = Flask(__name__)
-# ===================================================================
+# =================================================
 
 def converter_shopee(url_original):
     api_url = "https://open-api.affiliate.shopee.com.br/graphql"
@@ -55,30 +55,36 @@ def converter_mercadolivre(url_original):
     url_base = url_original.split('?')[0]
     return f"{url_base}?matt_word=leozao_udi&matt_tool={ML_CAMPANHA}"
 
+# Novo: Resposta amigável para quando iniciares o bot
+@bot.message_handler(commands=['start', 'help'])
+def boas_vindas(message):
+    bot.reply_to(message, "Olá! 🚀 Envia-me o link do produto (Shopee ou Mercado Livre) para eu gerar o teu link de afiliado.")
+
 @bot.message_handler(func=lambda message: True)
 def processar_mensagem(message):
     texto = message.text
+    if not texto: return
+    
     match = re.search(r'(https?://[^\s]+)', texto)
     
     if match:
         url_limpa = match.group(1)
         
         if re.search(r'(shopee\.|shope\.ee|shp\.ee)', url_limpa.lower()):
-            bot.reply_to(message, "⏳ A gerar link da Shopee...")
+            bot.reply_to(message, "⏳ A gerar o teu link da Shopee...")
             link_final = converter_shopee(url_limpa)
             bot.reply_to(message, f"🛍️ O teu link monetizado:\n{link_final}")
             
         elif re.search(r'(mercadolivre\.|meli\.la|mercadopago\.)', url_limpa.lower()):
-            bot.reply_to(message, "⏳ A gerar link do Mercado Livre...")
+            bot.reply_to(message, "⏳ A gerar o teu link do Mercado Livre...")
             link_final = converter_mercadolivre(url_limpa)
             bot.reply_to(message, f"🤝 O teu link monetizado:\n{link_final}")
             
         else:
-            bot.reply_to(message, "⚠️ Link não reconhecido. Envia um link válido da Shopee ou Mercado Pago/Livre.")
+            bot.reply_to(message, "⚠️ Link não reconhecido. Certifica-te que é da Shopee ou do Mercado Livre.")
     else:
-        bot.reply_to(message, "Cola o link do produto na mensagem para eu gerar o teu link de afiliado.")
+        bot.reply_to(message, "Cola um link válido na mensagem para eu processar.")
 
-# Rotas do Flask para o Webhook do Telegram
 @app.route('/' + TOKEN_TELEGRAM, methods=['POST'])
 def getMessage():
     json_string = request.get_data().decode('utf-8')
