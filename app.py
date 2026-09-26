@@ -8,9 +8,9 @@ import hashlib
 import os
 
 # ================= CONFIGURAÇÕES =================
-TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM")
-SHOPEE_APP_ID = os.environ.get("SHOPEE_APP_ID")
-SHOPEE_APP_SECRET = os.environ.get("SHOPEE_APP_SECRET")
+TOKEN_TELEGRAM = os.environ.get("8206852641:AAFVva1Eo3q16dL0kXuVoHNUR2SOFYD41_k")
+SHOPEE_APP_ID = os.environ.get("18383201070")
+SHOPEE_APP_SECRET = os.environ.get("HHEJTZ5QCXBMC6HTO34SXPQUYAZOZLGB")
 ML_CAMPANHA = os.environ.get("ML_CAMPANHA", "18054499")
 
 bot = telebot.TeleBot(TOKEN_TELEGRAM)
